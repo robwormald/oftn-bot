@@ -92,6 +92,14 @@ var Shared = module.exports = {
 		case "v8>":
 			// context.channel.send_reply(context.intent, "v8 temporarily disabled, please use js> instead."); return;
 			engine = Sandbox.V8; break;
+		case "n>": 
+		case "node>": 
+		case "0.10>": 
+		    engine = Sandbox.Node; break;
+		case "babel>":
+		case "b>":
+		case "6>":
+			engine = Sandbox.Babel; break;
 		default:
 			engine = Sandbox.SpiderMonkey; break;
 		}
@@ -108,6 +116,21 @@ var Shared = module.exports = {
 			try {
 				/* If theres an error, show that.
 				   If not, show the type along with the result */
+				if (result.isJSEval) {
+					if (result.reason) {
+						reply = result.reason;
+					}
+					else if (!result.success) {
+						reply = result.text.split("\n").slice(4).join(" ");
+					}
+					else {
+						reply = result.text.split("\n").join(" ");
+					}
+
+					context.channel.send_reply(context.intent, reply, {truncate: true});
+					return;
+				}
+
 				if (result.error !== null) {
 					reply = result.error;
 				} else {
